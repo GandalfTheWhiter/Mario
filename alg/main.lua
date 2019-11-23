@@ -78,68 +78,9 @@ function menu(  )
 			end
 		end
 
+		criarbottons(bottons)
 
-
-		local botton_width= ww *(1/3)
-		local margin = 16
-
-		local total_height = (botton_height + margin) * #bottons
-		local curso_y = 0
-
-		
-
-		for i, bottons in ipairs(bottons) do
-
-			bottons.last = bottons.now
-			
-			local bx = (ww * 0.5) - (botton_width*0.5)
-			local by = (wh * 0.5)  - (total_height * 0.5) + curso_y
-
-			local color = {0.4, 0.4, 0.5, 1.0}
-
-			local mx, my = love.mouse.getPosition()
-			--faz com que quando o mouse estive encima dos retangulos ele mude de cor
-			local hot = mx > bx and mx < bx + botton_width and
-						my > by and my < by + botton_height	
-			if hot then
-				color={0.8, 0.8, 0.9, 1.0}
-			end
-
-			--faz com quer quando clico com o botao direito a funçao q esta na funçao newBotton execute de acordado com a tabela bottons
-			bottons.now = love.mouse.isDown(1)
-			if bottons.now and not bottons.last and hot then
-					bottons.fns()
-					bottons.fn()
-			end
-		
-			--cria os retangulos e bota eles centralizados
-			love.graphics.setColor(color)
-			love.graphics.rectangle(
-				"fill",
-				bx,
-				by,
-				botton_width,
-				botton_height
-				)
-			local textw = font:getWidth(bottons.text)
-			local texth = font:getHeight(bottons.text)
-
-			--cria a fonte e escreve o que dentro do retangulo o q esta na tabela bottons
-			love.graphics.setColor(0, 0, 0, 1) 
-			love.graphics.print(
-				bottons.text, font,
-				(ww * 0.5) - textw * 0.5,
-				by + texth * 0.5
-				)
-
-			love.graphics.setColor(255,255,255,1) --Faz voltar para branco o preto na linha 160, fazendo aparece a imagem de fundo
-
-
-
-			curso_y = curso_y + (botton_height + margin)	
-		end-- end do for
-	end
-	if config and not menuAt then
+	elseif config and not menuAt then
 		menuConfig( )
 
 	end
@@ -161,63 +102,7 @@ function menuConfig( )
 					love.graphics.draw(imagaMenu,i* imagW,j* imagH)
 				end
 			end
-
-
-			local botton_width= ww *(1/3)
-			local margin = 16
-
-			local total_height = (botton_height + margin) * #bottonsconfig
-			local curso_y = 0
-
-
-
-			for i, bottonsconfig in ipairs(bottonsconfig) do
-
-				bottonsconfig.last = bottonsconfig.now
-				
-				local bx = (ww * 0.5) - (botton_width*0.5)
-				local by = (wh * 0.5)  - (total_height * 0.5) + curso_y
-
-				local color = {0.4, 0.4, 0.5, 1.0}
-
-				local mx, my = love.mouse.getPosition()
-				--faz com que quando o mouse estive encima dos retangulos ele mude de cor
-				local hot = mx > bx and mx < bx + botton_width and
-							my > by and my < by + botton_height	
-				if hot then
-					color={0.8, 0.8, 0.9, 1.0}
-				end
-
-				--faz com quer quando clico com o botao direito a funçao q esta na funçao newBotton execute de acordado com a tabela bottons
-				bottonsconfig.now = love.mouse.isDown(1)
-				if bottonsconfig.now and not bottonsconfig.last and hot then
-						bottonsconfig.fns()
-						bottonsconfig.fn()
-				end
-			
-				--cria os retangulos e bota eles centralizados
-				love.graphics.setColor(color)
-				love.graphics.rectangle(
-					"fill",
-					bx,
-					by,
-					botton_width,
-					botton_height
-					)
-
-				local textw = font:getWidth(bottonsconfig.text)
-				local texth = font:getHeight(bottonsconfig.text)
-
-				--cria a fonte e escreve o que dentro do retangulo o q esta na tabela bottons
-				love.graphics.setColor(0, 0, 0, 1) 
-				love.graphics.print(
-					bottonsconfig.text, font,
-					(ww * 0.5) - textw * 0.5,
-					by + texth * 0.5
-					)
-
-				love.graphics.setColor(255,255,255,1)
-			end --end do for
+		criarbottons(bottonsconfig)
 	end
 end
 
@@ -228,15 +113,15 @@ function tabelaconfig(  )
 	table.insert(bottonsconfig, newBotton(
 				"Fullscreen", 
 				function ( )
-				
+				click:play()
 				end,
 				function ( )
 				
 				end))
 	table.insert(bottonsconfig, newBotton(
-				"lua", 
+				"Mudar Resoluçao", 
 				function ( )
-				
+				click:play()
 				end,
 				function ( )
 				
@@ -283,4 +168,69 @@ function tabelaMenu( )
 				function( )
 							
 				end ))
+end
+
+function criarbottons( tabelaA )
+		
+		local ww = love.graphics.getWidth()
+		local wh = love.graphics.getHeight()
+		
+		local botton_width= ww *(1/3)
+		local margin = 16
+
+		local total_height = (botton_height + margin) * #tabelaA
+		local curso_y = 0
+
+		
+
+		for i, tabelaA in ipairs(tabelaA) do
+
+			tabelaA.last = tabelaA.now
+			
+			local bx = (ww * 0.5) - (botton_width*0.5)
+			local by = (wh * 0.5)  - (total_height * 0.5) + curso_y
+
+			local color = {0.4, 0.4, 0.5, 1.0}
+
+			local mx, my = love.mouse.getPosition()
+			--faz com que quando o mouse estive encima dos retangulos ele mude de cor
+			local hot = mx > bx and mx < bx + botton_width and
+						my > by and my < by + botton_height	
+			if hot then
+				color={0.8, 0.8, 0.9, 1.0}
+			end
+
+			--faz com quer quando clico com o botao direito a funçao q esta na funçao newBotton execute de acordado com a tabela bottons
+			tabelaA.now = love.mouse.isDown(1)
+			if tabelaA.now and not tabelaA.last and hot then
+					tabelaA.fns()
+					tabelaA.fn()
+			end
+		
+			--cria os retangulos e bota eles centralizados
+			love.graphics.setColor(color)
+			love.graphics.rectangle(
+				"fill",
+				bx,
+				by,
+				botton_width,
+				botton_height
+				)
+			local textw = font:getWidth(tabelaA.text)
+			local texth = font:getHeight(tabelaA.text)
+
+			--cria a fonte e escreve o que dentro do retangulo o q esta na tabela bottons
+			love.graphics.setColor(0, 0, 0, 1) 
+			love.graphics.print(
+				tabelaA.text, font,
+				(ww * 0.5) - textw * 0.5,
+				by + texth * 0.5
+				)
+
+			love.graphics.setColor(255,255,255,1) --Faz voltar para branco o preto na linha 160, fazendo aparece a imagem de fundo
+
+
+
+			curso_y = curso_y + (botton_height + margin)
+		end
 end
