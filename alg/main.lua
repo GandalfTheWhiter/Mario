@@ -1,7 +1,24 @@
-botton_height = 64
+require "scr/menu"
+
+
+
+math.randomseed(os.time())
+--variaveis bolleanas
 menuAt=true
 config=false
+full=false
+proximacarta=false
+--variaveis bolleanas
 
+--tabelas
+bottons = {}
+bottonsconfig = {}
+carta = {}
+centro={}
+tdcartas={a=1,dois=2,tres=3,quatro=4,cinco=5,seis=6,sete=7,oito=8,nove=9,dez=10,J=11,Q=12,K=13}
+--tabelas
+
+font = nil
 
 function newBotton( text, fns, fn)
 	return {
@@ -13,34 +30,55 @@ function newBotton( text, fns, fn)
 
 	}	
 end
-local font = nil
-bottons = {}
-bottonsconfig = {}
+function cartasAleatorias( )
+	cartaMao1=math.random(1,13)
+	cartaMao2=math.random(1,13)
+	cartaMao3=math.random(1,13)
+
+end
 
 function love.load( )
 
-music = love.audio.newSource("song/MusicMenu.mp3", "stream")
+	--if full then
+		--love.window.setFullscreen(fullscreen)
+	--end
+	cartasAleatorias()
+	music = love.audio.newSource("song/MusicMenu.mp3", "stream")
 
-font = love.graphics.newFont(32)
---toda tabela nova tem q vim para o load
-tabelaMenu( )
-tabelaconfig( )
+	font = love.graphics.newFont(32)
+	--toda tabela nova tem q vim para o load
+	tdcartas={a=1,dois=2,tres=3,quatro=4,cinco=5,seis=6,sete=7,oito=8,nove=9,dez=10,J=11,Q=12,K=13}
+	tabelaMenu( )
+	tabelaconfig( )
+	tabela_cartas_na_mao( )
+	tabela_centro_da_mesa( )
 
-imagaMenu = love.graphics.newImage("imagens/sol.jpg")
+	imagaMenu = love.graphics.newImage("imagens/sol.jpg")
+
 
 end
 
 function love.update( dt )
-	song( )
+	--song( )
+	if proximacarta then
+		table.insert(carta, newBotton(
+				" ".. cartaMao2.. " ",
+				function( )
+				
+				end ,
+				function( )
+							
+				end))
+	end
+
 end
 
 function love.draw( )
-
+	imagemDeFundoMenu( )
 	menu( )
-
- if not menuAt then
- 	--  love.graphics.circle("fill", 300, 300, 50, 100) 
-    --love.graphics.circle("fill", 300, 300, 50, 5)
+	if not menuAt and not config then
+		posiçaoDasCartasX()
+		CentroDaMesa()
 	end
 
 end
@@ -53,162 +91,50 @@ function song( )
 			music:play()
 			music:setLooping(true)
 
-		elseif not menuAt then
-			music:stop()
+		--elseif not menuAt then
+			--music:stop()
 		end
 end
 
-function menu(  )
+function posiçaoDasCartasX()
+	local ww = love.graphics.getWidth()
+	local wh = love.graphics.getHeight()
 	
-	--dentro do menu
-	if menuAt then
-		
-		local ww = love.graphics.getWidth()
-		local wh = love.graphics.getHeight()
-		
 
-		love.graphics.draw(imagaMenu,ww,wh)
-		local imagH = imagaMenu:getHeight()
-		local imagW = imagaMenu:getWidth()
+	--altura do retangulo
+	local botton_height = ww *(1/6)
+	--largura do retangulo
+	local botton_width= ww *(1/6)
+	--margem entre os retangulos
+	local margin = 16
+	--bota quantas carta tiverem na tabela uma do lado da outra
+	local total_width = (botton_width + margin) * #carta
+	local curso_y = 0
 
-		--faz aparece a imagem de fundo
-		for i=0,ww/imagW do
-			for j=0, wh/imagH do
-				love.graphics.draw(imagaMenu,i* imagW,j* imagH)
-			end
+
+	for i , carta in ipairs (carta) do
+		carta.now=carta.last
+
+		local bx = (ww * 0.5) - (total_width*0.5) + curso_y
+		local by = wh  - botton_height
+
+		local color = {0.4, 0.4, 0.5, 1.0}
+
+		local mx, my = love.mouse.getPosition()
+			--faz com que quando o mouse estive encima dos retangulos ele mude de cor
+		local hot = mx > bx and mx < bx + botton_width and
+						my > by and my < by + botton_height	
+		if hot then
+			color={0.8, 0.8, 0.9, 1.0}
 		end
 
-		criarbottons(bottons)
+		carta.now=love.mouse.isDown(1)
+		if carta.now and not carta.last and hot then
+			carta.fns()
+			carta.fn()
+		end
 
-	elseif config and not menuAt then
-		menuConfig( )
-
-	end
-end
---so quer aparece 1 retangulo
-function menuConfig( )
-
-	if config then
-			local ww = love.graphics.getWidth()
-			local wh = love.graphics.getHeight()
-
-			love.graphics.draw(imagaMenu,ww,wh)
-			local imagH = imagaMenu:getHeight()
-			local imagW = imagaMenu:getWidth()
-
-			--faz aparece a imagem de fundo
-			for i=0,ww/imagW do
-				for j=0, wh/imagH do
-					love.graphics.draw(imagaMenu,i* imagW,j* imagH)
-				end
-			end
-		criarbottons(bottonsconfig)
-	end
-end
-
-
-function tabelaconfig(  )
-	local click = love.audio.newSource("song/TV Off.mp3", "static")
-
-	table.insert(bottonsconfig, newBotton(
-				"Fullscreen", 
-				function ( )
-				click:play()
-				end,
-				function ( )
-				
-				end))
-	table.insert(bottonsconfig, newBotton(
-				"Mudar Resoluçao", 
-				function ( )
-				click:play()
-				end,
-				function ( )
-				
-				end))
-	table.insert(bottonsconfig, newBotton(
-				"Voltar", 
-				function ( )
-				click:play()
-				end,
-				function ( )
-				menuAt=true
-				config=false
-				end))
-end
-
-function tabelaMenu( )
-
-	local click = love.audio.newSource("song/TV Off.mp3", "static")
-
-	table.insert(bottons, newBotton(
-				"Start Game",
-				function( )
-				click:play() 
-				end,
-				function( )
-					menuAt = false		
-				end))
-
-	table.insert(bottons, newBotton(
-				"Settings",
-				function( )
-				click:play() 			
-				end,
-				function( )
-				menuAt=false
-				config=true			
-				end))
-
-	table.insert(bottons, newBotton(
-				"Exit",
-				function( )
-				love.event.quit(0)
-				end ,
-				function( )
-							
-				end ))
-end
-
-function criarbottons( tabelaA )
-		
-		local ww = love.graphics.getWidth()
-		local wh = love.graphics.getHeight()
-		
-		local botton_width= ww *(1/3)
-		local margin = 16
-
-		local total_height = (botton_height + margin) * #tabelaA
-		local curso_y = 0
-
-		
-
-		for i, tabelaA in ipairs(tabelaA) do
-
-			tabelaA.last = tabelaA.now
-			
-			local bx = (ww * 0.5) - (botton_width*0.5)
-			local by = (wh * 0.5)  - (total_height * 0.5) + curso_y
-
-			local color = {0.4, 0.4, 0.5, 1.0}
-
-			local mx, my = love.mouse.getPosition()
-			--faz com que quando o mouse estive encima dos retangulos ele mude de cor
-			local hot = mx > bx and mx < bx + botton_width and
-						my > by and my < by + botton_height	
-			if hot then
-				color={0.8, 0.8, 0.9, 1.0}
-			end
-
-			--faz com quer quando clico com o botao direito a funçao q esta na funçao newBotton execute de acordado com a tabela bottons
-			tabelaA.now = love.mouse.isDown(1)
-			if tabelaA.now and not tabelaA.last and hot then
-					tabelaA.fns()
-					tabelaA.fn()
-			end
-		
-			--cria os retangulos e bota eles centralizados
-			love.graphics.setColor(color)
+		love.graphics.setColor(color)
 			love.graphics.rectangle(
 				"fill",
 				bx,
@@ -216,21 +142,138 @@ function criarbottons( tabelaA )
 				botton_width,
 				botton_height
 				)
-			local textw = font:getWidth(tabelaA.text)
-			local texth = font:getHeight(tabelaA.text)
+			local textw = font:getWidth(carta.text)
+			local texth = font:getHeight(carta.text)
 
 			--cria a fonte e escreve o que dentro do retangulo o q esta na tabela bottons
 			love.graphics.setColor(0, 0, 0, 1) 
 			love.graphics.print(
-				tabelaA.text, font,
-				(ww * 0.5) - textw * 0.5,
-				by + texth * 0.5
+				carta.text, font,
+				bx + textw * 0.5,
+				(wh) - texth * 0.5 - 40
 				)
 
-			love.graphics.setColor(255,255,255,1) --Faz voltar para branco o preto na linha 160, fazendo aparece a imagem de fundo
+
+			love.graphics.setColor(255,255,255,1)
+
+
+		curso_y = curso_y + (botton_width + margin)
+	end
+end
 
 
 
-			curso_y = curso_y + (botton_height + margin)
-		end
+function tabela_cartas_na_mao( ) 
+	local click = love.audio.newSource("song/TV Off.mp3", "static")
+
+table.insert(carta, newBotton(
+			" ".. cartaMao1.. " ",
+			function( )
+			proximacarta=true
+				--if cartaMao1==tdcartas.a then
+				--	click:play()
+				--end	
+			end ,
+			function( )
+				if cartaMao1==tdcartas.a then
+					--imagemDeAs	
+				end
+			end))
+	
+		table.insert(carta, newBotton(
+				" ".. cartaMao2.. " ",
+				function( )
+				
+				end ,
+				function( )
+							
+				end))
+		table.insert(carta, newBotton(
+				" ".. cartaMao3.. " ",
+				function( )
+				
+				end ,
+				function( )
+							
+				end))
+	
+end
+
+function tabela_centro_da_mesa( )
+
+	messa1=math.random(os.time())
+	messa2=math.random(os.time())
+	messa3=math.random(os.time())	
+	messa4=math.random(os.time())
+
+
+table.insert(centro, newBotton(
+			"",
+			function( )
+			
+			end ,
+			function( )
+						
+			end))
+table.insert(centro, newBotton(
+			"",
+			function( )
+			
+			end ,
+			function( )
+						
+			end))
+table.insert(centro, newBotton(
+			"",
+			function( )
+			
+			end ,
+			function( )
+						
+			end))
+table.insert(centro, newBotton(
+			"Carta",
+			function( )
+			
+			end ,
+			function( )
+
+			end))	
+end
+
+function CentroDaMesa( )
+	local ww = love.graphics.getWidth()
+	local wh = love.graphics.getHeight()
+	
+	--altura do retangulo
+	local botton_height = ww *(1/6)
+	--largura do retangulo
+	local botton_width= ww *(1/10)
+	--margem entre os retangulos
+	local margin = 16
+	--bota quantas carta tiverem na tabela uma do lado da outra
+	local total_width = (botton_width + margin) * #carta
+	local curso_y = 0
+
+
+	for i , centro in ipairs (centro) do
+			local bx = (ww * 0.5) - (total_width * 0.5) - curso_y + 126
+			local by = (wh* 0.5)  - botton_height
+
+			local color = {0.4, 0.4, 0.5, 1.0}
+
+		love.graphics.setColor(color)
+			love.graphics.rectangle(
+				"fill",
+				bx,
+				by,
+				botton_width,
+				botton_height
+				)
+
+
+			love.graphics.setColor(255,255,255,1)
+
+		curso_y = curso_y + (botton_width + margin)
+	end
 end
